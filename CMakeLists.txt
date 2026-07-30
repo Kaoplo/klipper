@@ -26,6 +26,8 @@ add_executable(klipper
         src/recording_engine/output/recording_output.h
         src/recording_engine/recording_engine.cpp
         src/recording_engine/recording_engine.h
+        src/recording_engine/output/replay_buffer_output.cpp
+        src/recording_engine/output/replay_buffer_output.h
 )
 
 # Lets every file use full-path includes like

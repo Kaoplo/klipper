@@ -54,6 +54,14 @@ struct RecordingConfig {
     // OUTPUT
     std::string output_path = "./klipper_recording.mp4";
 
+    // REPLAY BUFFER
+    // shares encoder settings with recording
+    std::string replay_buffer_directory = "./replays";
+    std::string replay_buffer_format = "%CCYY-%MM-%DD %hh-%mm-%ss";
+    std::string replay_buffer_extension = "mp4";
+    int replay_buffer_max_time_sec = 30;
+    int replay_buffer_max_size_mb = 500;
+
 #if defined(_WIN32)
     std::string plugin_bin_dir = "obs-plugins/64bit";
     std::string plugin_data_dir = "data/obs-plugins";

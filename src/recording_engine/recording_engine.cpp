@@ -46,10 +46,18 @@ namespace klipper {
             return false;
         }
 
-
-        output_ = std::make_unique<RecordingOutput>();
-        if (!output_->initialize(video_encoder_, audio_encoder_, config_.output_path)) {
+        file_output_ = std::make_unique<RecordingOutput>();
+        if (!file_output_->initialize(video_encoder_, audio_encoder_, config_.output_path)) {
             std::cerr << "failed to create output\n";
+            return false;
+        }
+
+        replay_output_ = std::make_unique<ReplayBufferOutput>();
+        if (!replay_output_->initialize(video_encoder_, audio_encoder_, config_.replay_buffer_directory,
+                                        config_.replay_buffer_format, config_.replay_buffer_extension,
+                                        config_.replay_buffer_max_time_sec,
+                                        config_.replay_buffer_max_size_mb)) {
+            std::cerr << "failed to create replay buffer output\n";
             return false;
         }
 
@@ -61,7 +69,7 @@ void RecordingEngine::shutdown() {
         stopRecording();
     }
 
-    output_.reset();
+    file_output_.reset();
 
     if (audio_encoder_) {
         obs_encoder_release(audio_encoder_);
@@ -80,17 +88,44 @@ void RecordingEngine::shutdown() {
 }
 
 bool RecordingEngine::startRecording() {
-    if (!output_ || recording_)
+    if (!file_output_ || recording_)
         return false;
 
-    recording_ = output_->start();
+    recording_ = file_output_->start();
     return recording_;
 }
 
 void RecordingEngine::stopRecording() {
-    if (output_ && recording_) {
-        output_->stop();
+    if (file_output_ && recording_) {
+        file_output_->stop();
     }
         recording_ = false;
+}
+
+bool RecordingEngine::startReplayBuffer() {
+    if (!replay_output_ || replay_active_)
+        return false;
+
+    replay_active_ = replay_output_->start();
+        return replay_active_;
+}
+
+void RecordingEngine::stopReplayBuffer() {
+    if (replay_output_ && replay_active_) {
+        replay_output_->stop();
+    }
+    replay_active_ = false;
+}
+
+bool RecordingEngine::saveReplay() const {
+    if (!replay_output_ || !replay_active_)
+        return false;
+    return replay_output_->saveReplay();
+}
+
+std::string RecordingEngine::lastReplayPath() const {
+    if (!replay_output_)
+        return {};
+    return replay_output_->lastReplayPath();
 }
 }
