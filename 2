@@ -21,16 +21,6 @@ int main() {
 
     std::cout << "recording for 10 seconds to " << config.output_path << std::endl;
     if (!engine.startRecording()) {
-        std::cerr << "failed to start recording\n";
-        return 1;
+        std::cerr << "failed to start recording\n"
     }
-
-    std::this_thread::sleep_for(std::chrono::seconds(10));
-
-    std::cout << "stopping recording\n";
-    engine.stopRecording();
-    engine.shutdown();
-
-    std::cout << "done\n";
-    return 0;
 }
