@@ -44,7 +44,7 @@ bool RecordingOutput::start() {
 }
 
 void RecordingOutput::stop() {
-    if (!output_) {
+    if (output_) {
         obs_output_stop(output_);
     }
 }
