@@ -3,14 +3,19 @@ project(klipper CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GLIB REQUIRED glib-2.0)
+if(NOT WIN32)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GLIB REQUIRED glib-2.0)
+endif()
+
+find_package(Qt6 QUIET COMPONENTS Widgets)
+
 
 find_library(OBS_LIB obs REQUIRED)
 
-add_executable(klipper
-        src/main.cpp
+add_library(recording_engine STATIC
         src/recording_engine/core/obs_context.cpp
         src/recording_engine/core/module_loader.cpp
         src/recording_engine/core/module_loader.cpp
@@ -30,12 +35,21 @@ add_executable(klipper
         src/recording_engine/output/replay_buffer_output.h
 )
 
-# Lets every file use full-path includes like
-# "recording_engine/config/recording_config.h" regardless of which
-# subfolder it's compiled from.
-target_include_directories(klipper PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${GLIB_INCLUDE_DIRS}
-)
+target_include_directories(recording_engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(recording_engine PUBLIC ${OBS_LIB})
 
-target_link_libraries(klipper PRIVATE ${OBS_LIB} ${GLIB_LIBRARIES})
+if(NOT WIN32)
+    target_include_directories(recording_engine PUBLIC ${GLIB_INCLUDE_DIRS})
+    target_link_libraries(recording_engine PUBLIC ${GLIB_LIBRARIES})
+endif()
+
+add_executable(klipper-gui
+        src/frontend/main.cpp
+        src/frontend/main_window.cpp
+        src/frontend/main_window.h
+        src/frontend/engine_worker.cpp
+        src/frontend/engine_worker.h
+)
+target_link_libraries(klipper-gui PRIVATE recording_engine)
+
+target_link_libraries(klipper-gui PRIVATE Qt6::Widgets)
