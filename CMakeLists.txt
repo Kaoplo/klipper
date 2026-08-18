@@ -33,6 +33,8 @@ add_library(recording_engine STATIC
         src/recording_engine/recording_engine.h
         src/recording_engine/output/replay_buffer_output.cpp
         src/recording_engine/output/replay_buffer_output.h
+        src/recording_engine/capture/audio_capture_source.cpp
+        src/recording_engine/capture/audio_capture_source.h
 )
 
 target_include_directories(recording_engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -49,6 +51,8 @@ add_executable(klipper-gui
         src/frontend/main_window.h
         src/frontend/engine_worker.cpp
         src/frontend/engine_worker.h
+        src/frontend/settings_window.cpp
+        src/frontend/settings_window.h
 )
 target_link_libraries(klipper-gui PRIVATE recording_engine)
 

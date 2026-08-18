@@ -17,6 +17,7 @@ namespace {
 #if defined(_WIN32)
     const std::vector<std::string> kWantedModules = {
         "win-capture",
+        "win-wasapi",
         "obs-x264",
         "obs-ffmpeg",
         "obs-nvenc",
@@ -26,6 +27,7 @@ namespace {
     const std::vector<std::string> kWantedModules = {
         "linux-capture",
         "linux-pipewire",
+        "linux-pulseaudio",
         "obs-x264",
         "obs-ffmpeg",
         "obs-nvenc",

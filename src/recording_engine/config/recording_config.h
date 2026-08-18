@@ -8,7 +8,7 @@
 #include <string>
 
 namespace klipper {
-    // everything that we want the frontend to configure in the future
+    // contains all the configuration that the recording engine uses
 struct RecordingConfig {
     // VIDEO
     uint32_t base_width = 2560;
@@ -26,7 +26,10 @@ struct RecordingConfig {
 
     // AUDIO
     uint32_t sample_rate = 48000;
-
+    bool capture_desktop_audio = true;
+    bool capture_microphone = false;
+    std::string desktop_audio_device_id = "default";
+    std::string microphone_device_id = "default";
 
     // ENCODING
     // for now we only use "obs_x264"
@@ -38,7 +41,7 @@ struct RecordingConfig {
     // CAPTURE
     // for now only pipewire is supported
 #if defined(_WIN32)
-    std::string preferred_capture_source_id_ = "monitor_capture";
+    std::string preferred_capture_source_id = "monitor_capture";
 #else
     std::string preferred_capture_source_id = "pipewire-screen-capture-source";
 #endif
@@ -48,7 +51,8 @@ struct RecordingConfig {
     int capture_permission_wait_sec = 0;
 #else
     // TODO: in the future wait for the user to approve, not x amount of seconds
-    int capture_permission_wait_sec = 5;
+    // no need to wait, the user probably won't start recording until the popup is approved
+    int capture_permission_wait_sec = 0;
 #endif
 
     // OUTPUT
