@@ -10,6 +10,9 @@
 #include <QShortcut>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QComboBox>
+
+#include "settings_window.h"
 
 namespace klipper {
 
@@ -32,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     status_label_->setText("Initializing recording engine (watch for the "
                             "screen-share permission dialog)...");
-    QMetaObject::invokeMethod(worker_, "initializeEngine", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(worker_, "initializeEngine", Qt::QueuedConnection, current_config_);
 
     setupShortcuts();
 }
@@ -75,6 +78,20 @@ void MainWindow::setupUi()
         QMetaObject::invokeMethod(worker_, "saveReplay", Qt::QueuedConnection);
     });
     layout->addWidget(save_clip_button_);
+
+    open_settings_ = new QPushButton("Open Settings", central);
+    connect(open_settings_, &QPushButton::clicked, this, [this]() {
+        auto *settings_popup = new SettingsPopup(current_config_, this);
+        connect(settings_popup, &SettingsPopup::configSaved, this, [this](const RecordingConfig& newConfig) {
+            current_config_ = newConfig;
+            // TODO: shutdown engine first then restart, also stop recording/replay buffer, or don't let the user save.
+            QMetaObject::invokeMethod(worker_, "shutdownEngine",Qt::QueuedConnection);
+            QMetaObject::invokeMethod(worker_, "initializeEngine", Qt::QueuedConnection, current_config_);
+        });
+        settings_popup->exec();
+    });
+    layout->addWidget(open_settings_);
+
 
     setCentralWidget(central);
     resize(320, 180);

@@ -76,6 +76,9 @@ private:
     obs_encoder_t *video_encoder_ = nullptr;
     obs_encoder_t *audio_encoder_ = nullptr;
 
+    obs_source_t *desktop_audio_source_ = nullptr;
+    obs_source_t *mic_source_ = nullptr;
+
     std::unique_ptr<RecordingOutput> file_output_;
     std::unique_ptr<ReplayBufferOutput> replay_output_;
 

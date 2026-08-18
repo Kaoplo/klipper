@@ -11,6 +11,7 @@
 
 class QLabel;
 class QPushButton;
+class QComboBox;
 
 namespace klipper {
 
@@ -35,6 +36,7 @@ namespace klipper {
     private:
         void setupUi();
         void setupShortcuts();
+        RecordingConfig current_config_;
 
         QThread worker_thread_;
         EngineWorker *worker_ = nullptr;
@@ -43,6 +45,7 @@ namespace klipper {
         QPushButton *record_button_ = nullptr;
         QPushButton *replay_button_ = nullptr;
         QPushButton *save_clip_button_ = nullptr;
+        QPushButton *open_settings_ = nullptr;
     };
 
 } // namespace klipper

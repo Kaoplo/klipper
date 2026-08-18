@@ -5,6 +5,7 @@
 #include "frontend/engine_worker.h"
 
 #include <filesystem>
+#include <iostream>
 
 namespace klipper {
 
@@ -13,16 +14,18 @@ EngineWorker::EngineWorker(QObject *parent) : QObject(parent) {}
 EngineWorker::~EngineWorker() {
     shutdownEngine();
 }
-void EngineWorker::initializeEngine() {
-   RecordingConfig config;
+void EngineWorker::initializeEngine(const RecordingConfig& config) {
+    std::cout<<"START START"<<std::endl;
+    current_config_ = config;
     // replay buffer output doesn't create the path itself
-    std::filesystem::create_directories(config.replay_buffer_directory);
+    std::filesystem::create_directories(current_config_.replay_buffer_directory);
 
-    bool ok = engine_.initialize(config);
+    bool ok = engine_.initialize(current_config_);
     if (!ok) {
         emit errorOccurred("Failed to initialize recording engine - check console.");
     }
     emit initialized(ok);
+    std::cout<<"STARTED"<<std::endl;
 }
 
 void EngineWorker::startRecording() {
@@ -33,13 +36,13 @@ void EngineWorker::startRecording() {
     emit recordingStateChanged(true);
 }
 
-    void EngineWorker::stopRecording()
+void EngineWorker::stopRecording()
 {
     engine_.stopRecording();
     emit recordingStateChanged(false);
 }
 
-    void EngineWorker::startReplayBuffer()
+void EngineWorker::startReplayBuffer()
 {
     if (!engine_.startReplayBuffer()) {
         emit errorOccurred("Failed to start the replay buffer.");
@@ -48,13 +51,13 @@ void EngineWorker::startRecording() {
     emit replayBufferStateChanged(true);
 }
 
-    void EngineWorker::stopReplayBuffer()
+void EngineWorker::stopReplayBuffer()
 {
     engine_.stopReplayBuffer();
     emit replayBufferStateChanged(false);
 }
 
-    void EngineWorker::saveReplay()
+void EngineWorker::saveReplay()
 {
     if (!engine_.isReplayBufferActive()) {
         emit errorOccurred("Replay buffer isn't running.");
@@ -67,9 +70,11 @@ void EngineWorker::startRecording() {
     emit replaySaved(QString::fromStdString(engine_.lastReplayPath()));
 }
 
-    void EngineWorker::shutdownEngine()
+void EngineWorker::shutdownEngine()
 {
+    std::cout<<"SHUTDOWN START"<<std::endl;
     engine_.shutdown();
+    std::cout<<"SHUTDOWN"<<std::endl;
 }
 
 } // namespace klipper

@@ -5,10 +5,12 @@
 #include "recording_engine/recording_engine.h"
 #include "recording_engine/capture/capture_source.h"
 #include "recording_engine/encoding/encoder_factory.h"
+#include "capture/audio_capture_source.h"
 
 #include <chrono>
 #include <iostream>
 #include <thread>
+
 
 namespace klipper {
     RecordingEngine::~RecordingEngine() {
@@ -61,6 +63,25 @@ namespace klipper {
             return false;
         }
 
+        obs_set_output_source(0, capture_source_);
+
+        if (config_.capture_desktop_audio) {
+            desktop_audio_source_ = AudioCaptureSource::createDesktopAudio(config_.desktop_audio_device_id);
+            if (desktop_audio_source_) {
+                obs_set_output_source(1, desktop_audio_source_);
+            } else {
+                std::cerr << "failed to create desktop audio source\n";
+            }
+        }
+        if (config_.capture_microphone) {
+            mic_source_ = AudioCaptureSource::createMicrophone(config_.desktop_audio_device_id);
+            if (mic_source_) {
+                obs_set_output_source(2, mic_source_);
+            } else {
+                std::cerr << "failed to create mic source\n";
+            }
+        }
+
         return true;
     }
 
@@ -70,6 +91,7 @@ void RecordingEngine::shutdown() {
     }
 
     file_output_.reset();
+    replay_output_.reset();
 
     if (audio_encoder_) {
         obs_encoder_release(audio_encoder_);
@@ -82,6 +104,14 @@ void RecordingEngine::shutdown() {
     if (capture_source_) {
         obs_source_release(capture_source_);
         capture_source_ = nullptr;
+    }
+    if (mic_source_) {
+        obs_source_release(mic_source_);
+        mic_source_ = nullptr;
+    }
+    if (desktop_audio_source_) {
+        obs_source_release(desktop_audio_source_);
+        desktop_audio_source_ = nullptr;
     }
 
     context_.shutdown();

@@ -18,7 +18,7 @@ public:
     ~EngineWorker() override;
 
 public slots:
-    void initializeEngine();
+    void initializeEngine(const RecordingConfig&);
     void startRecording();
     void stopRecording();
     void startReplayBuffer();
@@ -35,5 +35,6 @@ signals:
 
 private:
     RecordingEngine engine_;
+    RecordingConfig current_config_;
 };
 } // namespace klipper
