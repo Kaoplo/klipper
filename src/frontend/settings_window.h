@@ -5,12 +5,15 @@
 #pragma once
 
 #include <QDialog>
+#include <QFormLayout>
 
 #include "recording_engine/config/recording_config.h"
 
 class QLabel;
 class QPushButton;
 class QTextEdit;
+class QComboBox;
+class QSpinBox;
 
 namespace klipper {
 class SettingsPopup : public QDialog {
@@ -24,9 +27,16 @@ signals:
 private:
     RecordingConfig config_;
     void onSaveClicked();
-    QPushButton *close_button_ = nullptr;
-    QLabel *settings_label_ = nullptr;
-    QLabel *some_setting_ = nullptr;
+    QFormLayout *form_ = nullptr;
+    QPushButton *save_button_= nullptr;
+    QPushButton *close_button_ = nullptr; // close without saving
+
+    QComboBox *res_opt_ = nullptr;
+
+    QSpinBox *fps_opt_ = nullptr;
+
+    QSpinBox *bitrate_opt_ = nullptr;
+    // still add audio settigns
     };
 
 
