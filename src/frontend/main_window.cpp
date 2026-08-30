@@ -10,7 +10,7 @@
 #include <QShortcut>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QComboBox>
+#include <QIcon>
 
 #include "settings_window.h"
 
@@ -94,6 +94,8 @@ void MainWindow::setupUi()
     layout->addWidget(open_settings_);
 
 
+    QIcon appIcon("../assets/512.png");
+    setWindowIcon(appIcon);
     setCentralWidget(central);
     resize(320, 180);
     setWindowTitle("klipper");
