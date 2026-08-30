@@ -11,8 +11,8 @@ namespace klipper {
     // contains all the configuration that the recording engine uses
 struct RecordingConfig {
     // VIDEO
-    uint32_t base_width = 2560;
-    uint32_t base_height = 1440;
+    uint32_t base_width = 0;
+    uint32_t base_height = 0;
     uint32_t output_width = 1920;
     uint32_t output_height = 1080;
     uint32_t fps_num = 60;

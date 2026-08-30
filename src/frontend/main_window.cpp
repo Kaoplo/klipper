@@ -4,6 +4,8 @@
 
 #include "frontend/main_window.h"
 
+#include <QGuiApplication>
+#include <QScreen>
 #include <QLabel>
 #include <QMetaObject>
 #include <QPushButton>
@@ -18,6 +20,13 @@ namespace klipper {
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    // temporary code
+    const QScreen *screen = QGuiApplication::primaryScreen();
+    const QSize pixelSize = screen->size();
+    current_config_.base_height = pixelSize.height();
+    current_config_.base_width = pixelSize.width();
+
+
     setupUi();
 
     worker_ = new EngineWorker();
