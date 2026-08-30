@@ -96,7 +96,6 @@ void RecordingEngine::shutdown() {
         stopReplayBuffer();
     }
     // TODO: implement this in a cleaner way
-    // std::this_thread::sleep_for(std::chrono::seconds(5));
     obs_set_output_source(0, nullptr);
     obs_set_output_source(1, nullptr);
     obs_set_output_source(2, nullptr);
