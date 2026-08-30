@@ -109,6 +109,8 @@ bool ObsContext::initialize(const RecordingConfig &config) {
 }
 
 void ObsContext::shutdown() {
+    if (!initialized_)
+        return;
     stopGlibMainLoop();
     obs_shutdown();
     initialized_ = false;

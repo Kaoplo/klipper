@@ -86,8 +86,26 @@ namespace klipper {
     }
 
 void RecordingEngine::shutdown() {
+    if (!context_.isInitialized())
+        return;
+
     if (recording_) {
         stopRecording();
+    }
+    if (replay_active_) {
+        stopReplayBuffer();
+    }
+    // TODO: implement this in a cleaner way
+    // std::this_thread::sleep_for(std::chrono::seconds(5));
+    obs_set_output_source(0, nullptr);
+    obs_set_output_source(1, nullptr);
+    obs_set_output_source(2, nullptr);
+
+    if (file_output_) {
+        file_output_->stop();
+    }
+    if (replay_output_) {
+        replay_output_->stop();
     }
 
     file_output_.reset();
