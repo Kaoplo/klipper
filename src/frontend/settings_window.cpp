@@ -40,7 +40,7 @@ SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : Q
     bitrate_opt_->setValue(config_.video_bitrate_kbps);
     bitrate_opt_->setSuffix(" kbps");
 
-    close_button_ = new QPushButton("Close without saving", this);
+    close_button_ = new QPushButton("Cancel", this);
     save_button_ = new QPushButton("Save and close", this);
 
     form_->addRow("Resolution: ", res_opt_);
