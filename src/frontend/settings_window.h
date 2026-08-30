@@ -31,12 +31,11 @@ private:
     QPushButton *save_button_= nullptr;
     QPushButton *close_button_ = nullptr; // close without saving
 
-    QComboBox *res_opt_ = nullptr;
-
+    // settings
+    QComboBox *res_opt_ = nullptr; // all these have their labels created by the form layout
     QSpinBox *fps_opt_ = nullptr;
-
     QSpinBox *bitrate_opt_ = nullptr;
-    // still add audio settigns
+    // still add audio settings
     };
 
 
