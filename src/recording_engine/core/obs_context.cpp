@@ -8,6 +8,7 @@
 #include <obs/obs.h>
 
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -64,7 +65,17 @@ void ObsContext::startGlibMainLoop() {}
 void ObsContext::stopGlibMainLoop() {}
 #endif
 
+void ObsContext::log_callback(int log_level, const char *format, va_list args, void *param) {
+    if (log_level > LOG_INFO) {
+        return;
+    }
+    vprintf(format, args);
+    printf("\n");
+}
+
 bool ObsContext::initialize(const RecordingConfig &config) {
+    base_set_log_handler(ObsContext::log_callback, this);
+
     if (!obs_startup("en_US", nullptr, nullptr)) {
         std::cerr << "failed to initialize obs core\n";
         return false;

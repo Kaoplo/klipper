@@ -25,6 +25,8 @@ private:
     void startGlibMainLoop();
     void stopGlibMainLoop();
 
+    static void log_callback(int log_level, const char *format, va_list args, void *param);
+
     bool initialized_ = false;
     GMainLoop *glib_loop_ = nullptr;
     std::thread glib_thread_;
