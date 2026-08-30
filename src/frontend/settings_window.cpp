@@ -21,6 +21,8 @@ SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : Q
     resize(300, 150);
     form_ = new QFormLayout(this);
 
+    // this does not change anything rn, just a placeholder
+    // TODO: have a struct in the future to select resolutions and values
     res_opt_ = new QComboBox(this);
     res_opt_->setPlaceholderText("2560x1440");
     res_opt_->addItem("1920x1080");
