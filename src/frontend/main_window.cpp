@@ -42,7 +42,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 MainWindow::~MainWindow()
 {
-    QMetaObject::invokeMethod(worker_, "shutdownEngine", Qt::BlockingQueuedConnection);
+    // TODO: shutdown runs twice for some reason, fix later
+    QMetaObject::invokeMethod(worker_, "shutdownEngine",Qt::BlockingQueuedConnection);
     worker_thread_.quit();
     worker_thread_.wait();
 }
@@ -85,7 +86,7 @@ void MainWindow::setupUi()
         connect(settings_popup, &SettingsPopup::configSaved, this, [this](const RecordingConfig& newConfig) {
             current_config_ = newConfig;
             // TODO: shutdown engine first then restart, also stop recording/replay buffer, or don't let the user save.
-            QMetaObject::invokeMethod(worker_, "shutdownEngine",Qt::QueuedConnection);
+            QMetaObject::invokeMethod(worker_, "shutdownEngine",Qt::BlockingQueuedConnection);
             QMetaObject::invokeMethod(worker_, "initializeEngine", Qt::QueuedConnection, current_config_);
         });
         settings_popup->exec();
