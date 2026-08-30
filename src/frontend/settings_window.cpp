@@ -29,8 +29,8 @@ SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : Q
     res_opt_->addItem("1280x720");
 
     fps_opt_ = new QSpinBox(this);
-    fps_opt_->setRange(5,240);
-    fps_opt_->setSingleStep(30);
+    fps_opt_->setRange(10,240);
+    fps_opt_->setSingleStep(1);
     fps_opt_->setValue(config_.fps_num);
     fps_opt_->setSuffix(" fps");
 
