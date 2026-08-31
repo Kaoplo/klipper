@@ -14,9 +14,8 @@ class RecordingOutput {
 public:
     ~RecordingOutput();
 
-    bool initialize(obs_encoder_t *video_encoder, obs_encoder_t *audio_encoder,
-                    const std::string &output_path);
-    bool start();
+    bool initialize(obs_encoder_t *video_encoder, obs_encoder_t *audio_encoder);
+    bool start(const std::string &output_path);
     void stop();
 
 private:

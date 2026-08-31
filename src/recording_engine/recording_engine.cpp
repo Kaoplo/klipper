@@ -49,7 +49,7 @@ namespace klipper {
         }
 
         file_output_ = std::make_unique<RecordingOutput>();
-        if (!file_output_->initialize(video_encoder_, audio_encoder_, config_.output_path)) {
+        if (!file_output_->initialize(video_encoder_, audio_encoder_)) {
             std::cerr << "failed to create output\n";
             return false;
         }
@@ -138,7 +138,7 @@ bool RecordingEngine::startRecording() {
     if (!file_output_ || recording_)
         return false;
 
-    recording_ = file_output_->start();
+    recording_ = file_output_->start(config_.output_path);
     return recording_;
 }
 

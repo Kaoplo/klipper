@@ -37,7 +37,4 @@ private:
     QSpinBox *bitrate_opt_ = nullptr;
     // still add audio settings
     };
-
-
-
 }

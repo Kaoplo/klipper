@@ -56,12 +56,13 @@ struct RecordingConfig {
 #endif
 
     // OUTPUT
-    std::string output_path = "./klipper_recording.mp4";
+    // std::string output_path= "./Rekording-%CCYY-%MM-%DD %hh-%mm-%ss.mp4";
+    std::string output_path= "./Rekording.mp4";
 
     // REPLAY BUFFER
     // shares encoder settings with recording
-    std::string replay_buffer_directory = "./replays";
-    std::string replay_buffer_format = "%CCYY-%MM-%DD %hh-%mm-%ss";
+    std::string replay_buffer_directory = "./klipper_replays";
+    std::string replay_buffer_format = "Klip-%CCYY-%MM-%DD %hh-%mm-%ss";
     std::string replay_buffer_extension = "mp4";
     int replay_buffer_max_time_sec = 30;
     int replay_buffer_max_size_mb = 500;
