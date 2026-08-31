@@ -19,6 +19,9 @@ void EngineWorker::initializeEngine(const RecordingConfig& config) {
     current_config_ = config;
     // replay buffer output doesn't create the path itself
     std::filesystem::create_directories(current_config_.replay_buffer_directory);
+    // for now we don't create a directory
+    // TODO: Create a directory for recordings
+    // std::filesystem::create_directories(current_config_.output_path);
 
     bool ok = engine_.initialize(current_config_);
     if (!ok) {
