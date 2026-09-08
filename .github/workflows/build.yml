@@ -1,0 +1,58 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux Release (Arch, x86_64)
+    runs-on: ubuntu-24.04
+    container: archlinux:base-devel
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          pacman -Syu --noconfirm --needed \
+            git cmake ninja pkgconf qt6-base glib2 obs-studio
+
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile
+        run: cmake --build build --parallel 2
+
+      - name: Package application
+        run: |
+          mkdir -p build/artifact/klipper-linux-x86_64/bin
+          install -m 755 build/klipper-gui build/artifact/klipper-linux-x86_64/bin/klipper-gui
+          cp -r assets build/artifact/klipper-linux-x86_64/assets
+          cp README.md build/artifact/klipper-linux-x86_64/README.md
+          pacman -Q > build/artifact/klipper-linux-x86_64/build-packages.txt
+          tar -czf build/klipper-linux-x86_64.tar.gz -C build/artifact klipper-linux-x86_64
+
+      - name: Upload application
+        uses: actions/upload-artifact@v7
+        with:
+          path: build/klipper-linux-x86_64.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
