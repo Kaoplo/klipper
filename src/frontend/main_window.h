@@ -36,6 +36,7 @@ namespace klipper {
     private:
         void setupUi();
         void setupShortcuts();
+        void showAbout();
         RecordingConfig current_config_;
 
         QThread worker_thread_;

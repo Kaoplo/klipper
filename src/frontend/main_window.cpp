@@ -3,7 +3,11 @@
 //
 
 #include "frontend/main_window.h"
+#include "build_info.h"
 
+#include <QClipboard>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QLabel>
@@ -102,12 +106,36 @@ void MainWindow::setupUi()
     });
     layout->addWidget(open_settings_);
 
+    auto *about_button = new QPushButton("About", central);
+    connect(about_button, &QPushButton::clicked, this, &MainWindow::showAbout);
+    layout->addWidget(about_button);
+
 
     QIcon appIcon("../assets/512.png");
     setWindowIcon(appIcon);
     setCentralWidget(central);
     resize(320, 180);
-    setWindowTitle("klipper");
+    setWindowTitle(QString::fromUtf8(build::summary));
+}
+
+void MainWindow::showAbout()
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle("About klipper");
+    auto *layout = new QVBoxLayout(&dialog);
+    const auto details = QString::fromUtf8(build::details);
+    auto *label = new QLabel(details, &dialog);
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    layout->addWidget(label);
+
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close, &dialog);
+    auto *copy = buttons->addButton("Copy build information", QDialogButtonBox::ActionRole);
+    connect(copy, &QPushButton::clicked, &dialog, [details]() {
+        QGuiApplication::clipboard()->setText(details);
+    });
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    dialog.exec();
 }
 
 void MainWindow::setupShortcuts()

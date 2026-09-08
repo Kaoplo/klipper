@@ -1,0 +1,13 @@
+#pragma once
+
+namespace klipper::build {
+inline constexpr char version[] = "@VERSION@";
+inline constexpr char number[] = "@BUILD_NUMBER@";
+inline constexpr char commit[] = "@GIT_SHA@";
+inline constexpr char summary[] = "klipper @VERSION@ - build @BUILD_NUMBER@ (@GIT_SHORT_SHA@@GIT_SUFFIX@)";
+inline constexpr char details[] =
+    "klipper @VERSION@\n"
+    "Build: @BUILD_NUMBER@\n"
+    "Commit: @GIT_SHA@\n"
+    "Working tree: @GIT_STATE@";
+}

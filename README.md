@@ -195,6 +195,18 @@ When using the engine without the GUI, set nonzero base capture dimensions and c
 
 ## Validation and contributing
 
+### Version and build information
+
+The application starts at version `0.1.0`, declared by `project(... VERSION ...)` in `CMakeLists.txt`. Update that value intentionally for a release and tag the corresponding commit, for example `v0.1.0`.
+
+The window title and startup logs show the version, build number, and abbreviated commit hash. Open **About** for the full commit hash and working-tree state, or use **Copy build information** when reporting an issue.
+
+GitHub Actions supplies a build number in `run.attempt` form, such as `142.1`. Local builds use `local`; a modified working tree adds `-dirty` to the displayed hash. Both tracked changes and untracked files count, while Git-ignored build files do not. Builds without Git metadata show `unknown`. Pull-request builds identify the merge commit actually checked out by CI.
+
+CMake regenerates `generated/build_info.h` inside the build directory on each build, updating the file only when its contents change. This keeps commit information current across incremental builds without unnecessary recompilation. To supply a build number manually, configure with `-DKLIPPER_BUILD_NUMBER=142.1`; use `-DKLIPPER_BUILD_NUMBER=local` to reset an existing build directory to local numbering.
+
+### Checks
+
 There is no automated test suite or CTest setup yet. Build changes locally and use a graphical session for a manual smoke check:
 
 1. Start and stop two recordings; confirm distinct files and playable video/audio.
