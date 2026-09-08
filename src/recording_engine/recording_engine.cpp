@@ -7,12 +7,37 @@
 #include "recording_engine/encoding/encoder_factory.h"
 #include "capture/audio_capture_source.h"
 
+#include <obs/util/bmem.h>
+#include <obs/util/platform.h>
+
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <thread>
 
 
 namespace klipper {
+namespace {
+std::string generateRecordingPath(const std::string &path_template) {
+    const std::filesystem::path pattern = std::filesystem::u8path(path_template);
+    // Format only the filename so directory names remain unchanged. The
+    // template already includes the extension, so OBS should not append one.
+    const std::unique_ptr<char, decltype(&bfree)> filename(
+        os_generate_formatted_filename(nullptr, true, pattern.filename().u8string().c_str()),
+        &bfree);
+    if (!filename || !*filename)
+        return {};
+
+    const auto path = pattern.parent_path() / std::filesystem::u8path(filename.get());
+    auto candidate = path;
+    for (unsigned int suffix = 2; std::filesystem::exists(candidate); ++suffix) {
+        candidate = path.parent_path() / std::filesystem::u8path(
+            path.stem().u8string() + " (" + std::to_string(suffix) + ")" + path.extension().u8string());
+    }
+    return candidate.u8string();
+}
+}
+
     RecordingEngine::~RecordingEngine() {
         shutdown();
     }
@@ -138,7 +163,17 @@ bool RecordingEngine::startRecording() {
     if (!file_output_ || recording_)
         return false;
 
-    recording_ = file_output_->start(config_.output_path);
+    try {
+        const auto output_path = generateRecordingPath(config_.output_path);
+        if (output_path.empty()) {
+            std::cerr << "failed to generate recording path\n";
+            return false;
+        }
+        recording_ = file_output_->start(output_path);
+    } catch (const std::filesystem::filesystem_error &error) {
+        std::cerr << "failed to generate recording path: " << error.what() << '\n';
+        return false;
+    }
     return recording_;
 }
 
