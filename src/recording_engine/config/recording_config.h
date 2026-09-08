@@ -56,8 +56,8 @@ struct RecordingConfig {
 #endif
 
     // OUTPUT
-    // std::string output_path= "./Rekording-%CCYY-%MM-%DD %hh-%mm-%ss.mp4";
-    std::string output_path= "./Rekording.mp4";
+    // Filename template using the same OBS placeholders as the replay buffer.
+    std::string output_path = "./Rekording-%CCYY-%MM-%DD %hh-%mm-%ss.mp4";
 
     // REPLAY BUFFER
     // shares encoder settings with recording
