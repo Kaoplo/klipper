@@ -78,6 +78,22 @@ cmake --build build-release --parallel 2
 
 There are no install rules or application packaging targets. Run the executable from its build directory. Extra build directories such as `build-release/` are not currently covered by `.gitignore`; keep their generated files out of commits.
 
+## GitHub Actions builds
+
+The [Build workflow](.github/workflows/build.yml) compiles a Linux x86_64 Release build on pushes to `main` and pull requests targeting `main`. It uses an Arch Linux container to match the current development dependencies and OBS plugin paths. New commits cancel older runs for the same branch or pull request.
+
+Successful runs upload `klipper-linux-x86_64.tar.gz`, retained for 14 days. Download it from the run's **Artifacts** section in GitHub Actions, then extract and run it:
+
+```bash
+tar -xzf klipper-linux-x86_64.tar.gz
+cd klipper-linux-x86_64/bin
+./klipper-gui
+```
+
+The archive includes the executable, artwork, this README, and a `build-packages.txt` inventory of the build environment. It preserves executable permissions using the upload action's [tar archive support](https://github.com/actions/upload-artifact#permission-loss).
+
+This is a dynamically linked development build for an up-to-date Arch Linux/CachyOS system. Install the runtime packages (`qt6-base`, `glib2`, and `obs-studio`) and configure capture services as described above; shared libraries and OBS plugins are not bundled. Other distributions may have incompatible library versions. The container uses rolling Arch packages, with the exact versions recorded in each artifact. CI verifies compilation and packaging; it does not run graphical recording tests or publish GitHub Releases.
+
 ## Run
 
 Use a terminal inside your graphical desktop session:
