@@ -1,9 +1,27 @@
 cmake_minimum_required(VERSION 3.16)
-project(klipper CXX)
+project(klipper VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+
+set(KLIPPER_BUILD_NUMBER "local" CACHE STRING "CI run number and attempt, or local")
+if(NOT KLIPPER_BUILD_NUMBER MATCHES "^(local|[0-9]+\\.[0-9]+)$")
+    message(FATAL_ERROR "KLIPPER_BUILD_NUMBER must be local or a run.attempt number")
+endif()
+
+# Check Git on every build, including incremental builds after switching commits.
+# configure_file only changes the header when the metadata actually changes.
+add_custom_target(klipper_build_info
+    COMMAND ${CMAKE_COMMAND}
+        "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+        "-DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/build_info.h"
+        "-DVERSION=${PROJECT_VERSION}"
+        "-DBUILD_NUMBER=${KLIPPER_BUILD_NUMBER}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateBuildInfo.cmake"
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/generated/build_info.h"
+    VERBATIM
+)
 
 if(NOT WIN32)
     find_package(PkgConfig REQUIRED)
@@ -55,5 +73,7 @@ add_executable(klipper-gui
         src/frontend/settings_window.h
 )
 target_link_libraries(klipper-gui PRIVATE recording_engine)
+add_dependencies(klipper-gui klipper_build_info)
+target_include_directories(klipper-gui PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 target_link_libraries(klipper-gui PRIVATE Qt6::Widgets)
