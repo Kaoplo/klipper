@@ -22,7 +22,7 @@ You need:
 | Dependency | Purpose |
 | --- | --- |
 | GCC or Clang with C++17 support | C++ compiler, including `std::filesystem` |
-| CMake 3.16 or newer | Project configuration |
+| CMake 3.19 or newer | Project configuration |
 | Ninja or Make | Build execution |
 | Qt 6 development files with Widgets | GUI and automatic Qt meta-object generation |
 | libobs headers and library | Recording engine |
@@ -90,7 +90,7 @@ cd klipper-linux-x86_64/bin
 ./klipper-gui
 ```
 
-The archive includes the executable, artwork, this README, and a `build-packages.txt` inventory of the build environment. It preserves executable permissions using the upload action's [tar archive support](https://github.com/actions/upload-artifact#permission-loss).
+The archive includes the application executable, the `obs-ffmpeg-mux` helper, artwork, this README, and a `build-packages.txt` inventory of the build environment. The tar archive preserves executable permissions.
 
 This is a dynamically linked development build for an up-to-date Arch Linux/CachyOS system. Install the runtime packages (`qt6-base`, `glib2`, and `obs-studio`) and configure capture services as described above; shared libraries and OBS plugins are not bundled. Other distributions may have incompatible library versions. The container uses rolling Arch packages, with the exact versions recorded in each artifact. CI verifies compilation and packaging; it does not run graphical recording tests or publish GitHub Releases.
 
@@ -158,19 +158,21 @@ The resolution selector is currently a placeholder. Saving settings also enables
 | No desktop audio | Check the default output device and PulseAudio-compatible audio service. Audio-source creation failures are logged but do not necessarily abort initialization. |
 | Recording or replay output fails | Check directory permissions, available storage, the `obs-ffmpeg` plugin, and mux-helper availability. |
 
-Some OBS installations expect `obs-ffmpeg-mux` beside the application executable. If logs show a missing helper, locate the installed binary:
+OBS launches `obs-ffmpeg-mux` as a separate process beside the application executable. CMake now finds the installed helper and copies it beside `klipper-gui` on every build (only when its contents differ). Existing helper symlinks are replaced with a regular file. No manual symlink is needed.
+
+If CMake cannot find the helper, locate the installed binary:
 
 ```bash
 command -v obs-ffmpeg-mux
 ```
 
-On the current Arch package it is `/usr/bin/obs-ffmpeg-mux`. If required, expose it beside the debug executable with this command from the repository root:
+For a custom OBS installation, pass its path when configuring:
 
 ```bash
-ln -s /usr/bin/obs-ffmpeg-mux build/obs-ffmpeg-mux
+cmake -S . -B build -DOBS_FFMPEG_MUX_EXECUTABLE=/path/to/obs-ffmpeg-mux
 ```
 
-Adjust both paths for your installation/build directory. The build does not copy or link runtime helpers automatically.
+Use the helper from the same OBS installation as libobs and its plugins. `cmake --install build --prefix /path/to/install` installs both executables together, and the CI archive includes both. Keep them together when moving the application. This bundles the helper only; compatible system OBS plugins, data, Qt, and OBS/FFmpeg shared libraries are still required. Rebuild after updating system OBS to refresh the bundled helper.
 
 ## Source layout
 
