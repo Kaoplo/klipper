@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
 set(KLIPPER_BUILD_NUMBER "local" CACHE STRING "CI run number and attempt, or local")
+option(KLIPPER_REQUIRE_GIT_METADATA "Fail the build if Git metadata cannot be read" OFF)
 if(NOT KLIPPER_BUILD_NUMBER MATCHES "^(local|[0-9]+\\.[0-9]+)$")
     message(FATAL_ERROR "KLIPPER_BUILD_NUMBER must be local or a run.attempt number")
 endif()
@@ -18,6 +19,7 @@ add_custom_target(klipper_build_info
         "-DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/generated/build_info.h"
         "-DVERSION=${PROJECT_VERSION}"
         "-DBUILD_NUMBER=${KLIPPER_BUILD_NUMBER}"
+        "-DREQUIRE_GIT_METADATA=${KLIPPER_REQUIRE_GIT_METADATA}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateBuildInfo.cmake"
     BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/generated/build_info.h"
     VERBATIM
