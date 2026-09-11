@@ -3,11 +3,15 @@
 //
 
 #include "frontend/main_window.h"
+
 #include "build_info.h"
 
 #include <QClipboard>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QDir>
+#include <QFileInfo>
+#include <QStandardPaths>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QLabel>
@@ -30,6 +34,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     current_config_.base_height = pixelSize.height();
     current_config_.base_width = pixelSize.width();
 
+    QString videosDir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+    if (videosDir.isEmpty())
+        videosDir = QDir::homePath();
+
+    const QDir outputDir(QDir(videosDir).filePath("Klipper"));
+    current_config_.replay_buffer_directory = outputDir.filePath("Replays").toStdString();
+    // output_path is a filename template, not a directory.
+    const QString filename = QFileInfo(QString::fromStdString(current_config_.output_path)).fileName();
+    current_config_.output_path = outputDir.filePath(filename).toStdString();
 
     setupUi();
 
