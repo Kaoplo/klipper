@@ -122,12 +122,12 @@ They do not work globally while a game or another application has focus.
 
 ### Output paths and defaults
 
-Paths are relative to the process's working directory. With the run command above, recordings and replay clips are written under `build/`.
+The GUI uses your system's configured Videos directory (typically `~/Videos` on Linux), with a home-directory fallback if no location is returned. It creates the `Klipper` and `Klipper/Replays` subdirectories automatically and reports directory-creation errors in the window.
 
 | Setting | Default |
 | --- | --- |
-| Recording path template | `./Rekording-%CCYY-%MM-%DD %hh-%mm-%ss.mp4` |
-| Replay directory | `./klipper_replays` |
+| Recording path template | `<Videos>/Klipper/Rekording-%CCYY-%MM-%DD %hh-%mm-%ss.mp4` |
+| Replay directory | `<Videos>/Klipper/Replays` |
 | Replay filename template | `Klip-%CCYY-%MM-%DD %hh-%mm-%ss` |
 | Replay extension | `mp4` |
 | Replay limits | 30 seconds / 500 MB |

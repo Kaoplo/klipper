@@ -17,11 +17,19 @@ EngineWorker::~EngineWorker() {
 void EngineWorker::initializeEngine(const RecordingConfig& config) {
     std::cout<<"START START"<<std::endl;
     current_config_ = config;
-    // replay buffer output doesn't create the path itself
-    std::filesystem::create_directories(current_config_.replay_buffer_directory);
-    // for now we don't create a directory
-    // TODO: Create a directory for recordings
-    // std::filesystem::create_directories(current_config_.output_path);
+    try {
+        std::filesystem::create_directories(
+            std::filesystem::u8path(current_config_.replay_buffer_directory));
+        const auto recording_directory =
+            std::filesystem::u8path(current_config_.output_path).parent_path();
+        if (!recording_directory.empty())
+            std::filesystem::create_directories(recording_directory);
+    } catch (const std::filesystem::filesystem_error &error) {
+        emit initialized(false);
+        emit errorOccurred(QString("Failed to create output directories: %1")
+                               .arg(QString::fromUtf8(error.what())));
+        return;
+    }
 
     bool ok = engine_.initialize(current_config_);
     if (!ok) {
