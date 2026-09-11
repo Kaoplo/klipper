@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-project(klipper VERSION 0.1.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.19)
+project(klipper VERSION 0.1.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,6 +32,18 @@ find_package(Qt6 QUIET COMPONENTS Widgets)
 
 
 find_library(OBS_LIB obs REQUIRED)
+
+find_program(OBS_FFMPEG_MUX_EXECUTABLE
+    NAMES obs-ffmpeg-mux
+    HINTS "${CMAKE_INSTALL_PREFIX}/bin"
+    PATH_SUFFIXES obs-plugins obs-plugins/64bit
+)
+if(NOT OBS_FFMPEG_MUX_EXECUTABLE OR NOT EXISTS "${OBS_FFMPEG_MUX_EXECUTABLE}")
+    message(FATAL_ERROR
+        "obs-ffmpeg-mux was not found. Install the native OBS runtime or set "
+        "-DOBS_FFMPEG_MUX_EXECUTABLE=/absolute/path/to/obs-ffmpeg-mux "
+        "from the same OBS installation as libobs and its plugins.")
+endif()
 
 add_library(recording_engine STATIC
         src/recording_engine/core/obs_context.cpp
@@ -77,3 +89,22 @@ add_dependencies(klipper-gui klipper_build_info)
 target_include_directories(klipper-gui PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 target_link_libraries(klipper-gui PRIVATE Qt6::Widgets)
+
+# OBS launches this helper next to the host executable. Run on incremental
+# builds too, so a deleted helper or a system OBS update is picked up.
+add_custom_target(klipper_mux_helper
+    COMMAND ${CMAKE_COMMAND}
+        "-DSOURCE_FILE=${OBS_FFMPEG_MUX_EXECUTABLE}"
+        "-DDESTINATION_DIR=$<TARGET_FILE_DIR:klipper-gui>"
+        "-DHELPER_NAME=obs-ffmpeg-mux${CMAKE_EXECUTABLE_SUFFIX}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyMuxHelper.cmake"
+    VERBATIM
+)
+add_dependencies(klipper-gui klipper_mux_helper)
+
+include(GNUInstallDirs)
+install(TARGETS klipper-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(PROGRAMS "${OBS_FFMPEG_MUX_EXECUTABLE}"
+    DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    RENAME "obs-ffmpeg-mux${CMAKE_EXECUTABLE_SUFFIX}"
+)
