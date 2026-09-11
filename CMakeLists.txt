@@ -47,6 +47,18 @@ if(NOT OBS_FFMPEG_MUX_EXECUTABLE OR NOT EXISTS "${OBS_FFMPEG_MUX_EXECUTABLE}")
         "from the same OBS installation as libobs and its plugins.")
 endif()
 
+find_program(OBS_NVENC_TEST
+    NAMES obs-nvenc-test
+    HINTS "${CMAKE_INSTALL_PREFIX}/bin"
+    PATH_SUFFIXES obs-plugins obs-plugins/64bit
+)
+if(NOT OBS_NVENC_TEST OR NOT EXISTS "${OBS_NVENC_TEST}")
+    message(FATAL_ERROR
+        "obs-nvenc-test was not found. Install the native OBS runtime or set "
+        "-DOBS_NVENC_TEST=/absolute/path/to/obs-nvenc-test "
+        "from the same OBS installation as libobs and its plugins.")
+endif()
+
 add_library(recording_engine STATIC
         src/recording_engine/core/obs_context.cpp
         src/recording_engine/core/module_loader.cpp
@@ -104,9 +116,23 @@ add_custom_target(klipper_mux_helper
 )
 add_dependencies(klipper-gui klipper_mux_helper)
 
+add_custom_target(klipper_nvenc_test_helper
+    COMMAND ${CMAKE_COMMAND}
+        "-DSOURCE_FILE=${OBS_NVENC_TEST}"
+        "-DDESTINATION_DIR=$<TARGET_FILE_DIR:klipper-gui>"
+        "-DHELPER_NAME=obs-nvenc-test${CMAKE_EXECUTABLE_SUFFIX}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyNvencTestHelper.cmake"
+    VERBATIM
+)
+add_dependencies(klipper-gui klipper_nvenc_test_helper)
+
 include(GNUInstallDirs)
 install(TARGETS klipper-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 install(PROGRAMS "${OBS_FFMPEG_MUX_EXECUTABLE}"
     DESTINATION "${CMAKE_INSTALL_BINDIR}"
     RENAME "obs-ffmpeg-mux${CMAKE_EXECUTABLE_SUFFIX}"
+)
+install(PROGRAMS "${OBS_NVENC_TEST}"
+    DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    RENAME "obs-nvenc-test${CMAKE_EXECUTABLE_SUFFIX}"
 )

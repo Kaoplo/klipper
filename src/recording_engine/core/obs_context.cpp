@@ -74,7 +74,7 @@ void ObsContext::log_callback(int log_level, const char *format, va_list args, v
 }
 
 bool ObsContext::initialize(const RecordingConfig &config) {
-    base_set_log_handler(ObsContext::log_callback, this);
+    base_set_log_handler(log_callback, this);
 
     if (!obs_startup("en_US", nullptr, nullptr)) {
         std::cerr << "failed to initialize obs core\n";
