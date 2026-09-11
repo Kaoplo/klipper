@@ -26,7 +26,7 @@ You need:
 | Ninja or Make | Build execution |
 | Qt 6 development files with Widgets | GUI and automatic Qt meta-object generation |
 | libobs headers and library | Recording engine |
-| OBS plugins, graphics module, data files, and `obs-ffmpeg-mux` | Runtime capture, encoding, and file output |
+| OBS plugins, graphics module, data files, and helpers (`obs-ffmpeg-mux`, `obs-nvenc-test`) | Runtime capture, encoding, and file output |
 | pkg-config and GLib development files | Linux GLib event loop used for portal integration |
 
 Qt 6 is required by the current CMake project, even though its package lookup uses `QUIET`. Dependencies are supplied by the system; the repository does not download or vendor them.
@@ -39,7 +39,7 @@ Install the development dependencies:
 sudo pacman -Syu --needed base-devel git cmake ninja pkgconf qt6-base glib2 obs-studio
 ```
 
-Arch's native OBS package includes the libobs headers, runtime plugins, and mux helper. See the [package file list](https://archlinux.org/packages/extra/x86_64/obs-studio/files/) for installed paths.
+Arch's native OBS package includes the libobs headers, runtime plugins, and helper executables. See the [package file list](https://archlinux.org/packages/extra/x86_64/obs-studio/files/) for installed paths.
 
 For Wayland capture, use a working PipeWire session and `xdg-desktop-portal` with the backend appropriate to your desktop. OBS lists desktop portal implementations as dependencies for Wayland capture in its [Arch package information](https://archlinux.org/packages/extra/x86_64/obs-studio/). Desktop and microphone audio also need a PulseAudio-compatible service, such as `pipewire-pulse`.
 
@@ -76,7 +76,7 @@ cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build-release --parallel 2
 ```
 
-There are no install rules or application packaging targets. Run the executable from its build directory. Extra build directories such as `build-release/` are not currently covered by `.gitignore`; keep their generated files out of commits.
+Run the executable from its build directory, or use `cmake --install build --prefix /path/to/install` to install the application and both OBS helpers. Extra build directories such as `build-release/` are not currently covered by `.gitignore`; keep their generated files out of commits.
 
 ## GitHub Actions builds
 
@@ -90,7 +90,7 @@ cd klipper-linux-x86_64/bin
 ./klipper-gui
 ```
 
-The archive includes the application executable, the `obs-ffmpeg-mux` helper, artwork, this README, and a `build-packages.txt` inventory of the build environment. The tar archive preserves executable permissions.
+The archive includes the application executable, the `obs-ffmpeg-mux` and `obs-nvenc-test` helpers, artwork, this README, and a `build-packages.txt` inventory of the build environment. The tar archive preserves executable permissions.
 
 This is a dynamically linked development build for an up-to-date Arch Linux/CachyOS system. Install the runtime packages (`qt6-base`, `glib2`, and `obs-studio`) and configure capture services as described above; shared libraries and OBS plugins are not bundled. Other distributions may have incompatible library versions. The container uses rolling Arch packages, with the exact versions recorded in each artifact. CI verifies compilation and packaging; it does not run graphical recording tests or publish GitHub Releases.
 
@@ -158,21 +158,24 @@ The resolution selector is currently a placeholder. Saving settings also enables
 | No desktop audio | Check the default output device and PulseAudio-compatible audio service. Audio-source creation failures are logged but do not necessarily abort initialization. |
 | Recording or replay output fails | Check directory permissions, available storage, the `obs-ffmpeg` plugin, and mux-helper availability. |
 
-OBS launches `obs-ffmpeg-mux` as a separate process beside the application executable. CMake now finds the installed helper and copies it beside `klipper-gui` on every build (only when its contents differ). Existing helper symlinks are replaced with a regular file. No manual symlink is needed.
+CMake finds the installed `obs-ffmpeg-mux` and `obs-nvenc-test` helpers and copies them beside `klipper-gui` on every build (only when their contents differ). Existing helper symlinks are replaced with a regular file. No manual symlink is needed.
 
-If CMake cannot find the helper, locate the installed binary:
+If CMake cannot find a helper, locate the installed binaries:
 
 ```bash
 command -v obs-ffmpeg-mux
+command -v obs-nvenc-test
 ```
 
-For a custom OBS installation, pass its path when configuring:
+For a custom OBS installation, pass the helper paths when configuring:
 
 ```bash
-cmake -S . -B build -DOBS_FFMPEG_MUX_EXECUTABLE=/path/to/obs-ffmpeg-mux
+cmake -S . -B build \
+  -DOBS_FFMPEG_MUX_EXECUTABLE=/path/to/obs-ffmpeg-mux \
+  -DOBS_NVENC_TEST=/path/to/obs-nvenc-test
 ```
 
-Use the helper from the same OBS installation as libobs and its plugins. `cmake --install build --prefix /path/to/install` installs both executables together, and the CI archive includes both. Keep them together when moving the application. This bundles the helper only; compatible system OBS plugins, data, Qt, and OBS/FFmpeg shared libraries are still required. Rebuild after updating system OBS to refresh the bundled helper.
+Use helpers from the same OBS installation as libobs and its plugins. `cmake --install build --prefix /path/to/install` installs all three executables together, and the CI archive includes all three. Keep them together when moving the application. This bundles the helper executables only; compatible system OBS plugins, data, Qt, and OBS/FFmpeg shared libraries are still required. Rebuild after updating system OBS to refresh the bundled helpers.
 
 ## Source layout
 

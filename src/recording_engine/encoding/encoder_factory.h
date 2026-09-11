@@ -14,6 +14,8 @@ class EncoderFactory {
 public:
     static obs_encoder_t *createVideoEncoder(const RecordingConfig &config);
     static obs_encoder_t *createAudioEncoder(const RecordingConfig &config);
+
+    static void enumerate_encoders();
 };
 
 }

@@ -50,6 +50,12 @@ jobs:
       - name: Package application
         run: |
           cmake --install build --prefix "$PWD/build/artifact/klipper-linux-x86_64"
+          for executable in klipper-gui obs-ffmpeg-mux obs-nvenc-test; do
+            if [[ ! -x "build/artifact/klipper-linux-x86_64/bin/$executable" ]]; then
+              echo "Missing or non-executable packaged binary: $executable" >&2
+              exit 1
+            fi
+          done
           cp -r assets build/artifact/klipper-linux-x86_64/assets
           cp README.md build/artifact/klipper-linux-x86_64/README.md
           pacman -Q > build/artifact/klipper-linux-x86_64/build-packages.txt
