@@ -11,7 +11,6 @@
 namespace klipper {
 
 obs_encoder_t *EncoderFactory::createVideoEncoder(const RecordingConfig &config) {
-    enumerate_encoders();
     obs_encoder_t *encoder = obs_video_encoder_create(
         config.video_encoder_id.c_str(), "video_encoder", nullptr, nullptr);
     if (!encoder)
@@ -41,20 +40,19 @@ obs_encoder_t *EncoderFactory::createAudioEncoder(const RecordingConfig &config)
     return encoder;
 }
 
-void EncoderFactory::enumerate_encoders() {
+std::vector<EncoderFactory::Encoder> EncoderFactory::enumerate_encoders() {
     size_t index = 0;
     const char *id = nullptr;
+    std::vector<Encoder> output;
 
     while (obs_enum_encoder_types(index++, &id)) {
-        const char *codec = obs_get_encoder_codec(id);
-        obs_encoder_type type = obs_get_encoder_type(id);
-
-        std::cout
-            << "ID: " << (id ? id: "")
-            << " | codec: " << (codec ? codec : "")
-            << " | type: "
-            << (type == OBS_ENCODER_VIDEO ? "video" : "audio")
-            << std::endl;
+        Encoder encoder{
+            .id = id,
+            .codec = obs_get_encoder_codec(id),
+            .type = obs_get_encoder_type(id),
+        };
+        output.push_back(encoder);
     }
+    return output;
 }
 }

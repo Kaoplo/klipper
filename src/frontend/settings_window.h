@@ -33,6 +33,8 @@ private:
 
     // settings
     QComboBox *res_opt_ = nullptr; // all these have their labels created by the form layout
+    QComboBox *video_enc_opt_ = nullptr;
+    void getVideoEncoders(QComboBox* dropdown);
     QSpinBox *fps_opt_ = nullptr;
     QSpinBox *bitrate_opt_ = nullptr;
     // still add audio settings

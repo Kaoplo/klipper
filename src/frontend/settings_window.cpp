@@ -10,6 +10,8 @@
 #include <QComboBox>
 #include <QSpinBox>
 
+#include "recording_engine/encoding/encoder_factory.h"
+
 namespace klipper {
 
 SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : QDialog(parent) {
@@ -28,6 +30,10 @@ SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : Q
     res_opt_->addItem("1920x1080");
     res_opt_->addItem("1280x720");
 
+    video_enc_opt_ = new QComboBox(this);
+    video_enc_opt_->setPlaceholderText(config_.video_encoder_id.data());
+    getVideoEncoders(video_enc_opt_);
+
     fps_opt_ = new QSpinBox(this);
     fps_opt_->setRange(10,240);
     fps_opt_->setSingleStep(1);
@@ -44,6 +50,7 @@ SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : Q
     save_button_ = new QPushButton("Save and close", this);
 
     form_->addRow("Resolution: ", res_opt_);
+    form_->addRow("Video Encoder: ", video_enc_opt_);
     form_->addRow("FPS: ", fps_opt_);
     form_->addRow("Bitrate: ", bitrate_opt_);
     form_->addRow(close_button_, save_button_);
@@ -59,9 +66,18 @@ SettingsPopup::SettingsPopup(const RecordingConfig& config ,QWidget *parent) : Q
     });
 }
 
+void SettingsPopup::getVideoEncoders(QComboBox* dropdown) {
+    const std::vector<EncoderFactory::Encoder> encoders =
+        EncoderFactory::enumerate_encoders();
+    for (const auto& encoder : encoders)
+        if (encoder.type == OBS_ENCODER_VIDEO)
+            dropdown->addItem(encoder.id);
+}
+
 void SettingsPopup::onSaveClicked() {
     config_.fps_num = fps_opt_->value();
     config_.video_bitrate_kbps = bitrate_opt_->value();
+    config_.video_encoder_id = video_enc_opt_->currentText().toStdString();
     emit configSaved(config_);
     accept();
 }
