@@ -8,14 +8,22 @@
 
 #include <obs/obs.h>
 
+#include <vector>
+
 namespace klipper {
 
 class EncoderFactory {
 public:
+    struct Encoder {
+        const char* id;
+        const char* codec;
+        const obs_encoder_type type;
+    };
+
     static obs_encoder_t *createVideoEncoder(const RecordingConfig &config);
     static obs_encoder_t *createAudioEncoder(const RecordingConfig &config);
 
-    static void enumerate_encoders();
+    static std::vector<Encoder> enumerate_encoders();
 };
 
 }
