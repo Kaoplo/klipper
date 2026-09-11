@@ -207,6 +207,8 @@ GitHub Actions supplies a build number in `run.attempt` form, such as `142.1`. L
 
 CMake regenerates `generated/build_info.h` inside the build directory on each build, updating the file only when its contents change. This keeps commit information current across incremental builds without unnecessary recompilation. To supply a build number manually, configure with `-DKLIPPER_BUILD_NUMBER=142.1`; use `-DKLIPPER_BUILD_NUMBER=local` to reset an existing build directory to local numbering.
 
+CI trusts its checkout directory explicitly for Git calls inside the build container and enables `-DKLIPPER_REQUIRE_GIT_METADATA=ON`. A failed commit or working-tree lookup then fails the build with Git's diagnostic instead of shipping `unknown` metadata. Local builds leave this option off to support source archives without `.git` metadata.
+
 ### Checks
 
 There is no automated test suite or CTest setup yet. Build changes locally and use a graphical session for a manual smoke check:

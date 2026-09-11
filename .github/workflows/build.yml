@@ -36,8 +36,12 @@ jobs:
 
       - name: Configure
         run: |
+          # Checkout's temporary Git configuration does not persist into this
+          # container shell. Trust only this workspace for build-time Git calls.
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_BINDIR=bin \
+            -DKLIPPER_REQUIRE_GIT_METADATA=ON \
             -DKLIPPER_BUILD_NUMBER="${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
 
       - name: Compile
